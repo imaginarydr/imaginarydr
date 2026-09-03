@@ -1,0 +1,15 @@
+interface:
+  display_name: "币安资金费率对冲 Agent"
+  short_description: "对冲链上现货敞口，监控资金费率、基差和真实空仓"
+  brand_color: "#F0B90B"
+  default_prompt: "Use $binance-funding-hedge-agent to evaluate my external spot exposure and produce a live Binance USDⓈ-M hedge report."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "binance"
+      description: "Binance Agent OS for Spot and USDⓈ-M market, account and order tools"
+      transport: "streamable_http"
+      url: "https://agent.binance.com/mcp/agentic"
+policy:
+  allow_implicit_invocation: true
+

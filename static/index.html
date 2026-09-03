@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>币安资金费率对冲 Agent</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">BINANCE AGENT OS</div>
+        <h1>币安资金费率对冲 Agent</h1>
+      </div>
+      <div class="status-line">
+        <span id="agentStatus" class="tag">Agent OS</span>
+        <span id="monitorStatus" class="tag muted">已停止</span>
+      </div>
+    </header>
+
+    <div id="busyPanel" class="busy-panel" role="status" aria-live="polite" hidden>
+      <span class="busy-spinner" aria-hidden="true"></span>
+      <strong id="busyTitle">正在处理</strong>
+      <span id="busyPhase">正在连接 Binance Agent OS</span>
+      <time id="busyElapsed">0 秒</time>
+    </div>
+
+    <section class="layout">
+      <aside class="panel controls">
+        <h2>Agent OS 账户</h2>
+        <div class="connection-box">
+          <span>Binance MCP</span>
+          <strong id="mcpStatus">检查中</strong>
+        </div>
+        <div class="button-row">
+          <button id="mcpConnect" class="primary">连接 Binance</button>
+          <button id="mcpRefresh">验证 Agent OS</button>
+          <button id="mcpLogout" class="danger">退出登录</button>
+        </div>
+
+        <h2 class="section-title">敞口与限制</h2>
+        <div class="form-grid">
+          <label>合约交易对<input id="symbol" value="BTCUSDT" autocomplete="off"></label>
+          <label class="toggle-row"><span>跟随币安现货</span><input id="followSpotBalance" type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label>现货敞口数量<input id="exposureQuantity" value="0.001" inputmode="decimal"></label>
+          <label>套保比例 %<input id="hedgeRatioPct" value="100" inputmode="decimal"></label>
+          <label>最大套保金额 USDT<input id="maxNotionalUsdt" value="10000" inputmode="decimal"></label>
+          <label>最大滑点 bps<input id="maxSlippageBps" value="10" inputmode="decimal"></label>
+          <label>最大基差 bps<input id="maxBasisBps" value="100" inputmode="decimal"></label>
+          <label>最大年化资金成本 %<input id="maxFundingCostAnnualPct" value="20" inputmode="decimal"></label>
+          <label>最低24h成交额 USDT<input id="minQuoteVolumeUsdt" value="10000000" inputmode="decimal"></label>
+          <label>监控间隔 秒<input id="monitorIntervalSeconds" value="60" inputmode="numeric"></label>
+        </div>
+        <div class="button-row">
+          <button id="analyze" class="primary">实时分析</button>
+        </div>
+        <div class="button-row">
+          <button id="monitorStart">启动监控</button>
+          <button id="monitorStop">停止监控</button>
+        </div>
+
+        <h2 class="section-title">仓位执行</h2>
+        <div class="button-row">
+          <button id="reconcile" class="primary">对齐空仓</button>
+          <button id="close" class="danger">关闭空仓</button>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <div class="decision-strip">
+          <div id="decision" class="decision">—</div>
+          <div>
+            <div id="symbolTitle" class="symbol">BTCUSDT</div>
+            <div id="updatedAt" class="timestamp">等待实时数据</div>
+          </div>
+          <div id="source" class="source">Binance Agent OS</div>
+        </div>
+
+        <div class="metrics">
+          <article><span>目标空仓</span><strong id="targetQty">—</strong></article>
+          <article><span>名义金额</span><strong id="notional">—</strong></article>
+          <article><span>资金费率年化</span><strong id="funding">—</strong></article>
+          <article><span>基差</span><strong id="basis">—</strong></article>
+          <article><span>预计滑点</span><strong id="slippage">—</strong></article>
+          <article><span>标记价格</span><strong id="markPrice">—</strong></article>
+        </div>
+
+        <div class="panel table-panel">
+          <div class="panel-heading"><h2>风险控制</h2><span id="failedCount">0 项未通过</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>控制项</th><th>当前值</th><th>级别</th><th>状态</th></tr></thead>
+              <tbody id="controls"><tr><td colspan="4" class="empty">等待实时分析</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="lower-grid">
+          <div class="panel">
+            <div class="panel-heading"><h2>真实仓位</h2><span id="accountMode">—</span></div>
+            <dl class="position-grid">
+              <div><dt>币安现货余额</dt><dd id="spotQuantity">—</dd></div>
+              <div><dt>当前合约仓位</dt><dd id="positionAmount">—</dd></div>
+              <div><dt>开仓均价</dt><dd id="entryPrice">—</dd></div>
+              <div><dt>强平价格</dt><dd id="liquidationPrice">—</dd></div>
+              <div><dt>未实现盈亏</dt><dd id="unrealizedProfit">—</dd></div>
+              <div><dt>可用保证金</dt><dd id="availableBalance">—</dd></div>
+              <div><dt>杠杆</dt><dd id="leverage">—</dd></div>
+            </dl>
+          </div>
+          <div class="panel log-panel">
+            <div class="panel-heading"><h2>运行记录</h2><span id="phase">待机</span></div>
+            <div id="events" class="events">等待操作</div>
+          </div>
+        </div>
+      </section>
+    </section>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="confirmModal" class="confirm-modal" hidden>
+      <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <h2 id="confirmTitle">确认操作</h2>
+        <dl id="confirmDetails" class="confirm-details"></dl>
+        <div class="button-row">
+          <button id="confirmCancel">取消</button>
+          <button id="confirmSubmit" class="primary">确认执行</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
