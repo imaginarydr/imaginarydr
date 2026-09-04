@@ -49,7 +49,7 @@ npm run verify
 npm start
 ```
 
-打开 `http://127.0.0.1:8815`。
+打开 `http://hedge.localhost:7331`。
 
 ## 独立账户
 
@@ -70,7 +70,7 @@ npm start
 链上仓位或理财脚本可以在本机推送最新数量。服务只监听 `127.0.0.1`，收到数量后立即重新读取 Binance Agent OS 市场数据并计算目标空仓。
 
 ```bash
-curl -sS http://127.0.0.1:8815/api/exposure \
+curl -sS http://hedge.localhost:7331/api/exposure \
   -H 'content-type: application/json' \
   --data '{"symbol":"ETHUSDT","exposureQuantity":"0.25"}'
 ```

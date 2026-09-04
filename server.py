@@ -24,7 +24,7 @@ DATA_DIR = Path(os.environ.get("FUNDING_HEDGE_DATA_DIR", Path.home() / ".binance
 CONFIG_PATH = DATA_DIR / "config.json"
 EVENTS_PATH = DATA_DIR / "events.jsonl"
 HOST = os.environ.get("FUNDING_HEDGE_HOST", "127.0.0.1")
-PORT = int(os.environ.get("FUNDING_HEDGE_PORT", "8815"))
+PORT = int(os.environ.get("FUNDING_HEDGE_PORT", "7331"))
 MAX_BODY = 64 * 1024
 CONFIG_FIELDS = {
     "symbol", "exposureQuantity", "hedgeRatioPct", "maxNotionalUsdt", "maxSlippageBps",
@@ -45,7 +45,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
 }
 TICKET_TTL_MS = 180_000
 ACCOUNT_MONITOR_INTERVAL_SECONDS = 900
-LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
+LOCAL_HOSTS = {"127.0.0.1", "localhost", "hedge.localhost", "::1"}
 PENDING_TICKETS: dict[str, dict[str, Any]] = {}
 LOCK = threading.RLock()
 RUN_LOCK = threading.Lock()
@@ -598,7 +598,8 @@ def main() -> None:
     worker = threading.Thread(target=monitor_loop, name="funding-hedge-monitor", daemon=True)
     worker.start()
     server = ThreadingHTTPServer((HOST, PORT), Handler)
-    event(f"服务已启动｜http://{HOST}:{PORT}")
+    display_host = "hedge.localhost" if HOST == "127.0.0.1" else HOST
+    event(f"服务已启动｜http://{display_host}:{PORT}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -11,10 +11,11 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(server.monitor_delay(60, 100, 170), 1)
 
     def test_local_request_validation_blocks_remote_web_origins(self):
-        self.assertTrue(server.is_local_host("127.0.0.1:8815"))
-        self.assertTrue(server.is_local_host("localhost:8815"))
-        self.assertFalse(server.is_local_host("attacker.example:8815"))
-        self.assertTrue(server.is_trusted_origin("http://127.0.0.1:8815"))
+        self.assertTrue(server.is_local_host("127.0.0.1:7331"))
+        self.assertTrue(server.is_local_host("localhost:7331"))
+        self.assertTrue(server.is_local_host("hedge.localhost:7331"))
+        self.assertFalse(server.is_local_host("attacker.example:7331"))
+        self.assertTrue(server.is_trusted_origin("http://hedge.localhost:7331"))
         self.assertTrue(server.is_trusted_origin(""))
         self.assertFalse(server.is_trusted_origin("https://attacker.example"))
 
